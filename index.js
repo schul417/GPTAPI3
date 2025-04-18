@@ -9,8 +9,8 @@ app.use(cors());
 
 app.post('/hubspot', async (req, res) => {
   const { endpoint, body } = req.body;
-  log.debug('endpoint', endpoint);
-  log.debug('body', body);
+  console.log('endpoint', endpoint);
+  console.log('body', body);
 
   if (!endpoint) {
     return res.status(400).json({
@@ -28,12 +28,12 @@ app.post('/hubspot', async (req, res) => {
     },
     data: body               // use `data` for JSON payload
   };
-  log.debug('axiosConfig', axiosConfig);
+  console.log('axiosConfig', axiosConfig);
 
 
   try {
     const response = await axios(axiosConfig);
-    log.debug('response', response)
+    console.debug('response', response)
   } catch (err) {
     console.error('HubSpot Error:', err.response?.data || err.message);
   }
