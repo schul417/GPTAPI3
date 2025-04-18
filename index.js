@@ -10,7 +10,7 @@ app.use(cors());
 app.post('/hubspot', async (req, res) => {
   const { endpoint, params } = req.body;
   const url = `https://api.hubapi.com${endpoint}`;
-  const hubspotPayload = params.params ? params.params : params;
+  const hubspotPayload = params.params || params;
 
   try {
     const response = await axios.post(url, hubspotPayload, {
@@ -31,4 +31,5 @@ app.post('/hubspot', async (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log("Middleware running on port", process.env.PORT || 3000);
 });
+
 
