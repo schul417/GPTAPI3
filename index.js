@@ -9,7 +9,7 @@ app.use(cors());
 
 + app.post('/hubspot', async (req, res) => {
      const payload = req.body.params || req.body;
-     const { endpoint, queryParams, body } = payload;
+     const { endpoint, body } = payload;
 
   // Determine HTTP method explicitly
   const method = endpoint.includes('/search') ? 'post' : 'get';
