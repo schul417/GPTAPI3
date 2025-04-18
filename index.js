@@ -1,19 +1,20 @@
 require('dotenv').config();
 const express = require('express');
-const axios = require('axios');
-const cors = require('cors');
+const axios   = require('axios');
+const cors    = require('cors');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 app.post('/hubspot', async (req, res) => {
-  // Get endpoint + body from the JSON payload
-  const endpoint = req.params.endpoint;
-  const body = req.params.params;
+  // 1) Destructure from the JSON body
+  const { endpoint, body } = req.body;
 
   if (!endpoint) {
-    return req //res.status(400).json({ error: 'Missing "endpoint" in request body.' });
+    return res.status(400).json({
+      error: 'Missing "endpoint" in request body.'
+    });
   }
 
   const url = `https://api.hubapi.com${endpoint}`;
@@ -24,10 +25,10 @@ app.post('/hubspot', async (req, res) => {
       Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
       'Content-Type': 'application/json'
     },
-    params: body
+    data: body               // use `data` for JSON payload
   };
 
-  // Build a safe debug snapshot (no API key)
+  // safe debug snapshot (no API key)
   const debugConfig = {
     method: axiosConfig.method,
     url:    axiosConfig.url,
@@ -36,13 +37,13 @@ app.post('/hubspot', async (req, res) => {
 
   try {
     const response = await axios(axiosConfig);
-    return res.json({
+    res.json({
       debug:  debugConfig,
       result: response.data
     });
   } catch (err) {
     console.error('HubSpot Error:', err.response?.data || err.message);
-    return res
+    res
       .status(err.response?.status || 500)
       .json({
         debug: debugConfig,
