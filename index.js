@@ -8,6 +8,8 @@ app.use(express.json());
 app.use(cors());
 
 app.post('/hubspot', async (req, res) => {
+
+  return 'hello world';
   // 1) Destructure from the JSON body
   const { endpoint, body } = req.body;
 
