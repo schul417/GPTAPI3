@@ -7,8 +7,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.post('/hubspot', async (req, res) => {
-  const { endpoint, queryParams, body } = req.body;
++ app.post('/hubspot', async (req, res) => {
+     const payload = req.body.params || req.body;
+     const { endpoint, queryParams, body } = payload;
 
   // Determine HTTP method explicitly
   const method = endpoint.includes('/search') ? 'post' : 'get';
@@ -21,8 +22,8 @@ app.post('/hubspot', async (req, res) => {
       Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
       'Content-Type': 'application/json',
     },
-    ...(method === 'get' && queryParams ? { params: queryParams } : {}),
-    ...(method === 'post' && body ? { data: body } : {}),
+   ...(method === 'get' && queryParams  ? { params: queryParams } : {}),
+    ...(method === 'post' && body         ? { data: body         } : {}),
   };
 
   try {
