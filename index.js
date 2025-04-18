@@ -8,6 +8,7 @@ app.use(express.json());
 app.use(cors());
 
 app.post('/hubspot', async (req, res) => {
+  console.log('📥 Incoming request:', req.body);
   const { endpoint, body } = req.body;
 
   if (!endpoint) {
@@ -24,6 +25,7 @@ app.post('/hubspot', async (req, res) => {
       },
       data: body
     });
+    console.log('✅ HubSpot replied:', axiosRes.status, axiosRes.data);
 
     // send HubSpot’s response data back to the caller:
     return res
