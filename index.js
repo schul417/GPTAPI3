@@ -7,36 +7,52 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-+ app.post('/hubspot', async (req, res) => {
-     const payload = req.body.params || req.body;
-     const { endpoint, body } = payload;
+app.post('/hubspot', async (req, res) => {
+  // Support both direct calls and GPT-style wrapper
+  const payload = req.body.params || req.body;
 
-  // Determine HTTP method explicitly
-  const method = endpoint.includes('/search') ? 'post' : 'get';
+  const {
+    endpoint,
+    body,            // for POST/PUT/PATCH/etc.
+    queryParams,     // for GET
+    method: overrideMethod,
+    headers: customHeaders = {}
+  } = payload;
 
-  // Axios config based on method
+  if (!endpoint) {
+    return res.status(400).json({ error: 'Missing "endpoint" in request body.' });
+  }
+
+  // Allow an explicit override, otherwise search endpoints => POST, all else => GET
+  const method = (overrideMethod || (endpoint.includes('/search') ? 'post' : 'get'))
+                   .toLowerCase();
+
+  // Build the axios config
   const axiosConfig = {
     method,
     url: `https://api.hubapi.com${endpoint}`,
     headers: {
       Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
       'Content-Type': 'application/json',
+      ...customHeaders
     },
-   ...(method === 'get' && queryParams  ? { params: queryParams } : {}),
-    ...(method === 'post' && body         ? { data: body         } : {}),
+    // Attach query params for GET (or any non-body methods, if you like)
+    ...(method === 'get' && queryParams     ? { params: queryParams } : {}),
+    // Attach body for non-GET
+    ...(method !== 'get' && body             ? { data: body }         : {})
   };
 
   try {
     const response = await axios(axiosConfig);
     res.json(response.data);
-  } catch (error) {
-    console.error("HubSpot Error:", error.response?.data || error.message);
-    res.status(error.response?.status || 500).json({
-      error: error.response?.data || error.message,
-    });
+  } catch (err) {
+    console.error('HubSpot Error:', err.response?.data || err.message);
+    res
+      .status(err.response?.status || 500)
+      .json({ error: err.response?.data || err.message });
   }
 });
 
 app.listen(process.env.PORT || 3000, () => {
-  console.log("Middleware running on port", process.env.PORT || 3000);
+  console.log('Middleware running on port', process.env.PORT || 3000);
 });
