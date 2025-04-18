@@ -8,6 +8,13 @@ app.use(express.json());
 app.use(cors());
 
 app.post('/hubspot', async (req, res) => {
+  const userApiKey = req.headers['USER_API_KEY'];
+
+  // Check API key provided by user
+  if (!userApiKey || userApiKey !== process.env.USER_API_KEY) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid API Key.' });
+  }
+
   console.log('📥 Incoming request:', req.body);
   const { endpoint, body } = req.body;
 
