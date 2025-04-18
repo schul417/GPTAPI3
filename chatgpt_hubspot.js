@@ -38,7 +38,7 @@ async function chatWithHubspot(prompt) {
     const args = JSON.parse(toolCall.function.arguments);
 
     // Call middleware (your local Node server)
-    const middlewareResponse = await axios.post('http://localhost:3000/hubspot', {
+    const middlewareResponse = await axios.post('https://gptapi3.onrender.com', {
       endpoint: '/crm/v3/objects/contacts',
       params: { limit: args.limit }
     });
