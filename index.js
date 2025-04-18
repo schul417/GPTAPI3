@@ -8,12 +8,13 @@ app.use(express.json());
 app.use(cors());
 
 app.post('/hubspot', async (req, res) => {
-  const { endpoint, params } = req.body;
-  const url = `https://api.hubapi.com${endpoint}`;
-  const hubspotPayload = params.params || params;
+  const { endpoint, ...rest } = req.body;
+
+  // Explicitly handle nested params or direct payload
+  const hubspotPayload = rest.params || rest;
 
   try {
-    const response = await axios.post(url, hubspotPayload, {
+    const response = await axios.post(`https://api.hubapi.com${endpoint}`, hubspotPayload, {
       headers: {
         Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
         'Content-Type': 'application/json'
