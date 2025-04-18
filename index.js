@@ -28,27 +28,12 @@ app.post('/hubspot', async (req, res) => {
     data: body               // use `data` for JSON payload
   };
 
-  // safe debug snapshot (no API key)
-  const debugConfig = {
-    method: axiosConfig.method,
-    url:    axiosConfig.url,
-    data:   axiosConfig.data
-  };
 
   try {
     const response = await axios(axiosConfig);
-    res.json({
-      debug:  debugConfig,
-      result: response.data
-    });
+    log.debug('response', response)
   } catch (err) {
     console.error('HubSpot Error:', err.response?.data || err.message);
-    res
-      .status(err.response?.status || 500)
-      .json({
-        debug: debugConfig,
-        error: err.response?.data || err.message
-      });
   }
 });
 
