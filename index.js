@@ -10,6 +10,7 @@ app.use(cors());
 app.post('/hubspot', async (req, res) => {
   // Get endpoint + body from the JSON payload
   const endpoint = req.params.endpoint;
+  return endpoint;
   const body = req.params.params;
 
   if (!endpoint) {
