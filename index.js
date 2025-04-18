@@ -11,28 +11,30 @@ app.post('/hubspot', async (req, res) => {
   const { endpoint, body } = req.body;
 
   if (!endpoint) {
-    return res.status(400).json({
-      error: 'Missing "endpoint" in request body.'
-    });
+    return res.status(400).json({ error: 'Missing "endpoint" in request body.' });
   }
 
-  const url = `https://api.hubapi.com${endpoint}`;
-  const axiosConfig = {
-    method: 'post',
-    url,
-    headers: {
-      Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
-    data: body               // use `data` for JSON payload
-  };
-
-
   try {
-    const response = await axios(axiosConfig);
-    return response
+    const axiosRes = await axios({
+      method: 'post',
+      url: `https://api.hubapi.com${endpoint}`,
+      headers: {
+        Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      data: body
+    });
+
+    // send HubSpot’s response data back to the caller:
+    return res
+      .status(axiosRes.status)
+      .json(axiosRes.data);
   } catch (err) {
     console.error('HubSpot Error:', err.response?.data || err.message);
+    // forward HubSpot’s error (or a generic 500)
+    const status = err.response?.status || 500;
+    const payload = err.response?.data || { message: err.message };
+    return res.status(status).json(payload);
   }
 });
 
