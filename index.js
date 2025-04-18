@@ -9,10 +9,11 @@ app.use(cors());
 
 app.post('/hubspot', async (req, res) => {
   const { endpoint, ...rest } = req.body;
-  const hubspotPayload = rest.params || rest;
 
-  const isSearchOrMutation = endpoint.includes('/search') || endpoint.includes('/batch') || endpoint.includes('/merge');
-  const method = isSearchOrMutation ? 'post' : 'get';
+  const hubspotPayload = rest;
+
+  // Force correct method explicitly:
+  const method = endpoint.includes('/search') ? 'post' : 'get';
 
   try {
     const response = await axios({
@@ -22,7 +23,7 @@ app.post('/hubspot', async (req, res) => {
         Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      ...(method === 'get' ? { params: hubspotPayload } : { data: hubspotPayload })
+      ...(method === 'post' ? { data: hubspotPayload } : { params: hubspotPayload })
     });
 
     res.json(response.data);
