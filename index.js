@@ -9,17 +9,22 @@ app.use(cors());
 
 app.post('/hubspot', async (req, res) => {
   const { endpoint, ...rest } = req.body;
-
-  // Explicitly handle nested params or direct payload
   const hubspotPayload = rest.params || rest;
 
+  const isSearchOrMutation = endpoint.includes('/search') || endpoint.includes('/batch') || endpoint.includes('/merge');
+  const method = isSearchOrMutation ? 'post' : 'get';
+
   try {
-    const response = await axios.post(`https://api.hubapi.com${endpoint}`, hubspotPayload, {
+    const response = await axios({
+      method,
+      url: `https://api.hubapi.com${endpoint}`,
       headers: {
         Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
         'Content-Type': 'application/json'
-      }
+      },
+      ...(method === 'get' ? { params: hubspotPayload } : { data: hubspotPayload })
     });
+
     res.json(response.data);
   } catch (error) {
     console.error("HubSpot Error:", error.response?.data || error.message);
