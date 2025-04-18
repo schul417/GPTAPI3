@@ -12,7 +12,7 @@ app.post('/hubspot', async (req, res) => {
   const url = `https://api.hubapi.com${endpoint}`;
 
   try {
-    const response = await axios.get(url, params, {  // ← Corrected placement!
+    const response = await axios.post(url, params, {
       headers: {
         Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
         'Content-Type': 'application/json'
