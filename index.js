@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cors());
 
 app.post('/hubspot', async (req, res) => {
-  const userApiKey = req.headers['USER_API_KEY'];
+  const userApiKey = req.headers['user-api-key'];
 
   // Check API key provided by user
   if (!userApiKey || userApiKey !== process.env.USER_API_KEY) {
