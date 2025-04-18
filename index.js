@@ -10,11 +10,10 @@ app.use(cors());
 app.post('/hubspot', async (req, res) => {
   // Get endpoint + body from the JSON payload
   const endpoint = req.params.endpoint;
-  return endpoint;
   const body = req.params.params;
 
   if (!endpoint) {
-    return res.status(400).json({ error: 'Missing "endpoint" in request body.' });
+    return JSON.stringify(req) //res.status(400).json({ error: 'Missing "endpoint" in request body.' });
   }
 
   const url = `https://api.hubapi.com${endpoint}`;
