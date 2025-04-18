@@ -8,56 +8,43 @@ app.use(express.json());
 app.use(cors());
 
 app.post('/hubspot', async (req, res) => {
-  // unwrap wrapper if needed
-  const payload = req.body.params || req.body;
-  const {
-    endpoint,
-    body,
-    queryParams,
-    method: overrideMethod,
-    headers: customHeaders = {}
-  } = payload;
+  // Get endpoint + body from the JSON payload
+  const { endpoint, body } = req.body;
 
   if (!endpoint) {
     return res.status(400).json({ error: 'Missing "endpoint" in request body.' });
   }
+  if (typeof body !== 'object') {
+    return res.status(400).json({ error: '"body" must be a JSON object.' });
+  }
 
-  const method = (overrideMethod || (endpoint.includes('/search') ? 'post' : 'get'))
-                   .toLowerCase();
-
-  // build full axios config
+  const url = `https://api.hubapi.com${endpoint}`;
   const axiosConfig = {
-    method,
-    url: `https://api.hubapi.com${endpoint}`,
+    method: 'post',
+    url,
     headers: {
       Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
-      'Content-Type': 'application/json',
-      ...customHeaders
+      'Content-Type': 'application/json'
     },
-    ...(method === 'get'   && queryParams ? { params: queryParams } : {}),
-    ...(method !== 'get'   && body        ? { data:   body        } : {})
+    data: body
   };
 
-  // strip out the auth header for debug visibility
-  const { Authorization, ...otherHeaders } = axiosConfig.headers;
+  // Build a safe debug snapshot (no API key)
   const debugConfig = {
     method: axiosConfig.method,
     url:    axiosConfig.url,
-    headers: otherHeaders, 
-    ...(axiosConfig.params ? { params: axiosConfig.params } : {}),
-    ...(axiosConfig.data   ? { data:   axiosConfig.data   } : {})
+    data:   axiosConfig.data
   };
 
   try {
     const response = await axios(axiosConfig);
-    // send back both debug info and the real response
-    res.json({
+    return res.json({
       debug:  debugConfig,
       result: response.data
     });
   } catch (err) {
     console.error('HubSpot Error:', err.response?.data || err.message);
-    res
+    return res
       .status(err.response?.status || 500)
       .json({
         debug: debugConfig,
