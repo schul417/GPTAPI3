@@ -11,6 +11,10 @@ app.post('/hubspot', async (req, res) => {
   const { endpoint, params } = req.body;
   const url = `https://api.hubapi.com${endpoint}`;
 
+  console.log("Received endpoint:", endpoint);  // 🚨 Logs the endpoint sent to your middleware
+  console.log("Received params:", params);      // 🚨 Logs the params sent
+  console.log("Full URL Called:", url);         // 🚨 Logs the complete URL called
+
   try {
     const response = await axios.post(url, params, {
       headers: {
