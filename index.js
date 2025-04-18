@@ -21,10 +21,12 @@ app.post('/hubspot', async (req, res) => {
   if (!endpoint) {
     return res.status(400).json({ error: 'Missing "endpoint" in request body.' });
   }
+  
+  const method = endpoint.endsWith('search') ? 'post' : 'get';
 
   try {
     const axiosRes = await axios({
-      method: 'post',
+      method: method,
       url: `https://api.hubapi.com${endpoint}`,
       headers: {
         Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
