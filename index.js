@@ -15,9 +15,6 @@ app.post('/hubspot', async (req, res) => {
   if (!endpoint) {
     return res.status(400).json({ error: 'Missing "endpoint" in request body.' });
   }
-  if (typeof body !== 'object') {
-    return res.status(400).json({ error: '"body" must be a JSON object.' });
-  }
 
   const url = `https://api.hubapi.com${endpoint}`;
   const axiosConfig = {
@@ -27,7 +24,7 @@ app.post('/hubspot', async (req, res) => {
       Authorization: `Bearer ${process.env.HUBSPOT_API_KEY}`,
       'Content-Type': 'application/json'
     },
-    data: body
+    params: body
   };
 
   // Build a safe debug snapshot (no API key)
